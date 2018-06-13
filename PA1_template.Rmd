@@ -7,15 +7,30 @@ output:
 
 
 ## Loading and preprocessing the data
-### load the data
+### Loading librarys needed
+```{r,warning=FALSE,message=FALSE}
+library(dplyr)
+```
+### load and prepare the data
 ```{r}
 activity <- read.csv("activity.csv")
+activity$date <- as.Date(activity$date, "%Y-%m-%d")
+head(activity)
 ```
 
 
 ## What is mean total number of steps taken per day?
+### First calculate the sums of steps per day
+```{r}
+sum_steps <- activity %>% filter(!is.na(steps)) %>% group_by(date) %>% 
+    summarise(tot_steps = sum(steps))
+arrange(sum_steps, desc(tot_steps))
+```
 
-
+### create histogram
+```{r}
+hist(sum_steps$tot_steps, breaks = 25, main = "Histogram of total number of steps taken per day", xlab = "steps")
+```
 
 ## What is the average daily activity pattern?
 
