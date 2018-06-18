@@ -32,7 +32,21 @@ arrange(sum_steps, desc(tot_steps))
 hist(sum_steps$tot_steps, breaks = 25, main = "Histogram of total number of steps taken per day", xlab = "steps")
 ```
 
+### calculate the mean
+```{r}
+mean_steps <- mean(sum_steps$tot_steps)
+median_steps <- median(sum_steps$tot_steps)
+```
+mean = `r mean_steps`   
+median = `r median_steps`
+
 ## What is the average daily activity pattern?
+### First calculate the sums of steps per interval
+```{r}
+steps_interval <- activity %>% filter(!is.na(steps)) %>% group_by(interval) %>% 
+    summarise(mean_steps_int = mean(steps))
+arrange(steps_interval, desc(mean_steps_int))
+```
 
 
 
