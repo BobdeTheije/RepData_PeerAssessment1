@@ -13,6 +13,18 @@ library(dplyr)
 ```
 ### load and prepare the data
 ```{r}
+fileUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+# download file if not already in Wd
+if(!file.exists("repdata%2Fdata%2Factivity.zip"))
+{
+  download.file(fileUrl, "activity.zip")
+}
+# Unzip if necessary
+if (!file.exists("activity.csv")) 
+{ 
+  unzip("activity.zip") 
+}
+
 activity <- read.csv("activity.csv")
 activity$date <- as.Date(activity$date, "%Y-%m-%d")
 head(activity)
@@ -48,7 +60,17 @@ steps_interval <- activity %>% filter(!is.na(steps)) %>% group_by(interval) %>%
 arrange(steps_interval, desc(mean_steps_int))
 ```
 
+### Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r}
+with(steps_interval, plot(interval, mean_steps_int, type = "l", xlab = "interval", 
+                          ylab= "Average number of Steps", main = "Average number of steps during the day"))
+```
 
+### Determine the 5-minute interval, on average across all the days in the dataset, which contains the maximum number of steps.
+```{r}
+max_interval <- steps_interval %>% filter(mean_steps_int == max(mean_steps_int)) %>% select(interval)
+```
+interval that contains the maximum number of steps on average = `r max_interval$interval` 
 
 ## Imputing missing values
 
