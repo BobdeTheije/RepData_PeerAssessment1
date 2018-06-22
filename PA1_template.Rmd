@@ -10,6 +10,7 @@ output:
 ### Loading librarys needed
 ```{r,warning=FALSE,message=FALSE}
 library(dplyr)
+library(ggplot2)
 ```
 ### load and prepare the data
 ```{r}
@@ -73,7 +74,38 @@ max_interval <- steps_interval %>% filter(mean_steps_int == max(mean_steps_int))
 interval that contains the maximum number of steps on average = `r max_interval$interval` 
 
 ## Imputing missing values
+### Calculate and report the total number of missing values
+```{r}
+sum_na <-sum(is.na(activity$steps))
+```
+total number of missing values = `r sum_na` 
 
+### Impute missing values with the mean for each interval
+```{r}
+activity_nw <- activity
+activity_nw$steps[is.na(activity_nw$steps)] <- tapply(activity_nw$steps, activity_nw$interval, mean, na.rm=TRUE, simplify=T)
+```
 
+### make histogram and calculate the mean and median per day
+```{r}
+sum_steps_nw <- activity_nw %>% filter(!is.na(steps)) %>% group_by(date) %>% 
+    summarise(tot_steps = sum(steps))
+hist(sum_steps_nw$tot_steps, breaks = 25, main = "Histogram of total number of steps taken per day", xlab = "steps")
+```
+
+### calculate the mean
+```{r}
+mean_steps_nw <- mean(sum_steps_nw$tot_steps)
+median_steps_nw <- median(sum_steps_nw$tot_steps)
+```
+mean = `r mean_steps_nw`   
+median = `r median_steps_nw`  
+imputing data has no effect on the mean and a small change in median (is equal to mean now)
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+activity_nw <- mutate(activity_nw, 
+                      wd_ind = as.factor(case_when(weekdays(activity_nw$date) == "Sunday" |
+                                                   weekdays(activity_nw$date) == "Saturday" ~ "weekend"
+                                                   , TRUE ~ "weekday")))
+g <- ggplot(activity_nw, aes(interval, steps))
